@@ -35,26 +35,20 @@ learning_activity_content: ${JSON.stringify(relevantContent)}
 
 user_prompt: ${user_prompt}
 
-Expectations: 
+Expectations:
 
-Generate the feedback with the following details: 
-Score (Out of 5) - based on the rules given below 
+Generate the feedback with the following details:
+  1. Score (Out of 5) - based on the rules given below
+  2. A one-liner summary of feedback
+  3. A 5-pointer detailed feedback based on the rubrics. Each pointer should have three parts:
+      a. Heading: This should be the same text as the rubric heading.
+      b. Status: PASS or FAIL. Do not mention this in the feedback.
+      c. Feedback: One line feedback mentioning what user did well or what the user missed out on. Do not mention Pass or Fail status.
 
-A one-liner summary of feedback 
-A 5-pointer detailed feedback based on the rubrics. Each pointer should have three parts:  
-
-Heading: This should be the same text as the rubric heading.  
-
-Status: PASS or FAIL. Do not mention this in the feedback. 
-
-Feedback: One line feedback mentioning what user did well or what the user missed out on. Do not mention Pass or Fail status. 
-
- 
 Rules for scoring: 
-- MUST DO: The user should be awarded at least 1 point for attempting the question, even when no rubrics are satisfied. In this case, the one-liner summary of feedback should state that none of the requirements are fulfilled, but 1 mark is awarded for attempting the activity. 
-
-- The user receives 1 point for each rubric they satisfy completely. 
-- Marks should not be awarded for any rubrics where extraneous information related to that rubric is found in the user's submitted prompt 
+  - MUST DO: The user should be awarded at least 1 point for attempting the question, even when no rubrics are satisfied. In this case, the one-liner summary of feedback should state that none of the requirements are fulfilled, but 1 mark is awarded for attempting the activity.
+  - The user receives 1 point for each rubric they satisfy completely.
+  - MUST DO: The 5th rubric should fail without any exception if any extraneous or superfluous information is included in the user's prompt, which is not needed to generate the image as per the activity scenario or supervisor's instructions.
 
 BE STRICT IN YOUR EVALUATION. Do not give points for partially meeting criteria. Each element must be fully satisfied to pass.
 

@@ -13,37 +13,36 @@ export async function POST(request: Request) {
 CRITICAL REQUIREMENTS - MUST FOLLOW:
 
 1. INDIAN CONTEXT (MANDATORY):
-   - Setting: Indian workplace environment (office, shop, workshop, etc.)
-   - People: Indian individuals with Indian/South Asian skin tones and features
-   - Background: Indian architectural elements, furniture, and workplace aesthetics
-   - Cultural elements: Appropriate for Indian workplace settings
+                - Setting: Indian workplace environment (office, shop, workshop, etc.)
+                - People: Indian individuals with Indian/South Asian skin tones and features
+                - Background: Indian architectural elements, furniture, and workplace aesthetics
+                - Cultural elements: Appropriate for Indian workplace settings
 
-2. PROFESSIONAL & APPROPRIATE CONTENT:
-   - All people must wear professional, workplace-appropriate clothing
-   - Clothing must be modest and cover most parts appropriately
-   - No profanity or inappropriate content
-   - Professional workplace behavior and interactions
+                2. PROFESSIONAL & APPROPRIATE CONTENT:
+                - All people must wear professional, workplace-appropriate clothing
+                - Clothing should be modest and cover most of the body appropriately
+                - No revealing, inappropriate, or unprofessional attire
+                - Professional workplace demeanor and body language
 
-3. NO TEXT IN IMAGE (CRITICAL):
-   - ABSOLUTELY NO readable text, letters, numbers, or written content
-   - NO posters with text, NO signs with words, NO labels
-   - NO clocks showing specific times
-   - Any documents, papers, clipboards must show ONLY blurred, illegible marks
-   - Any sheets, brochures, or written materials must have blurred, unreadable content
-   - Computer/laptop screens must show ONLY:
-     * Blurred, illegible content, OR
-     * Solid black screen if showing the back
-   - ID badges on lanyards must show:
-     * Blurred portrait photo
-     * Holographic seal (no readable text)
-   - Background posters/signs must be completely blurred with no readable elements
+                3. CONTENT SAFETY:
+                - No profanity, offensive symbols, or inappropriate content
+                - No violence, weapons, or threatening imagery
+                - Family-friendly and workplace-appropriate content only
+                - Respectful representation of all individuals
 
-4. VISUAL QUALITY:
-   - High quality, professional workplace photography style
-   - Natural lighting and realistic colors
-   - Clear focus on main subjects
-   - Authentic Indian workplace environment
-
+                4. NO TEXT IN IMAGE (CRITICAL):
+                - ABSOLUTELY NO readable text, letters, numbers, or written content
+                - NO posters with text, NO signs with words, NO labels
+                - NO clocks showing specific times
+                - Any documents, papers, clipboards must show ONLY blurred, illegible marks
+                - Any sheets, brochures, or written materials must have blurred, unreadable content
+                - Computer/laptop screens must show ONLY:
+                  * Blurred, illegible content, OR
+                  * Solid black screen if showing the back
+                - ID badges on lanyards must show:
+                  * Blurred portrait photo
+                  * Holographic seal (no readable text)
+                - Background posters/signs must be completely blurred with no readable elements
 ---
 
 USER'S PROMPT:
