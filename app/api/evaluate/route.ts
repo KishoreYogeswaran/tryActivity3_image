@@ -50,6 +50,13 @@ Rules for scoring:
   - The user receives 1 point for each rubric they satisfy completely.
   - MUST DO: The 5th rubric should fail without any exception if any extraneous or superfluous information is included in the user's prompt, which is not needed to generate the image as per the activity scenario or supervisor's instructions.
 
+CRITICAL REQUIREMENTS - MUST FOLLOW: You must follow these guidelines while generating the activity content in Hindi language.
+  1. Use everyday conversational Hindi.
+  2. Prefer short, simple sentences.
+  3. MUST DO: If there are Transliterated terms in the activity or rubrics, use them as is in the feedback.
+  4. MUST DO: Every word of the activity must be either in the Hindi language or 'transliterated into Devanagari script'. There should be NO words in Roman or Latin script except numbers.
+  5. Do not use complex Sanskritized terms unless widely understood.
+
 BE STRICT IN YOUR EVALUATION. Do not give points for partially meeting criteria. Each element must be fully satisfied to pass.
 
 IMPORTANT: Respond ONLY with valid JSON in this exact format:
