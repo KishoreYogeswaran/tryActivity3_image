@@ -49,7 +49,7 @@ Rules for scoring:
   - MUST DO: The user should be awarded at least 1 point for attempting the question, even when no rubrics are satisfied. In this case, the one-liner summary of feedback should state that none of the requirements are fulfilled, but 1 mark is awarded for attempting the activity.
   - The user receives 1 point for each rubric they satisfy completely.
   - MUST DO: The 5th rubric should fail without any exception if any extraneous or superfluous information is included in the user's prompt, which is not needed to generate the image as per the activity scenario or supervisor's instructions.
-  - MUST DO: If user describes the requirements given in the 2nd and 3rd rubrics, with the same details as supervisor's direction, then these rubrics should be considered as passed. It is important that the user should NOT be expected to provide any information or detail, above and beyond of what is present in the supervisor's direction.
+  - MUST DO: If user describes the requirements given in the 2nd and 3rd rubrics, with the same details as supervisor's direction, then these rubrics should be considered as passed. It is important that the user should NOT be expected to provide any information or detail, above and beyond of what is present in the supervisor's direction. If the supervisor's directions include pronouns, then the user should be required to mention the character's name or job role instead of using the pronoun as is
 
 CRITICAL REQUIREMENTS - MUST FOLLOW: You must follow these guidelines while generating the activity content in Hindi language.
   1. Use everyday conversational Hindi.
