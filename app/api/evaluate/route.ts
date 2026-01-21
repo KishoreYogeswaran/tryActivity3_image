@@ -50,6 +50,7 @@ Rules for scoring:
   - The user receives 1 point for each rubric they satisfy completely.
   - MUST DO: The 5th rubric should fail without any exception if any extraneous or superfluous information is included in the user's prompt, which is not needed to generate the image as per the activity scenario or supervisor's instructions.
   - MUST DO: If user describes the requirements given in the 2nd and 3rd rubrics, with the same details as supervisor's direction, then these rubrics should be considered as passed. It is important that the user should NOT be expected to provide any information or detail, above and beyond of what is present in the supervisor's direction. If the supervisor's directions include pronouns, then the user should be required to mention the character name, object name or job role instead of using the pronoun as is.
+  - The first rubric should be passed ONLY if the prompt includes [workplace_location] and [Setting 1 and 2]' as per the activity content and rubric.
 
 CRITICAL REQUIREMENTS - MUST FOLLOW: You must follow these guidelines while generating the activity content in Hindi language.
   1. Use everyday conversational Hindi.
