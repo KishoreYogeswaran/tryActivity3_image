@@ -8,6 +8,8 @@ export default function Home() {
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [activityData, setActivityData] = useState<any>(null);
+  const [showPreview, setShowPreview] = useState(false);
   const router = useRouter();
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,18 +49,26 @@ export default function Home() {
         return;
       }
 
-      // Store in sessionStorage and navigate
-      sessionStorage.setItem('activityData', JSON.stringify(data));
-      router.push('/activity');
+      // Store activity data
+      setActivityData(data);
+      setFile(selectedFile);
+      setIsLoading(false);
     } catch (err) {
       setError('Error reading file. Please ensure it is a valid JSON file.');
       setIsLoading(false);
     }
   };
 
+  const startActivity = () => {
+    if (activityData) {
+      sessionStorage.setItem('activityData', JSON.stringify(activityData));
+      router.push('/activity');
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: 'var(--color-brand-bg)' }}>
-      <div className="max-w-2xl w-full">
+      <div className="max-w-4xl w-full">
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold mb-4" style={{ color: 'var(--color-brand-primary)' }}>
             TRY Activity - Image Prompts
@@ -137,12 +147,149 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="mt-8 text-center">
-          <p className="text-gray-600 text-sm">
-            Learn to write effective AI image generation prompts
-          </p>
-        </div>
+        {/* Show activity loaded state with action buttons */}
+        {activityData && (
+          <div className="mt-8 p-6 rounded-2xl shadow-xl" style={{ backgroundColor: 'var(--color-brand-card)' }}>
+            <div className="text-center">
+              <div className="mb-6">
+                <svg
+                  className="mx-auto h-16 w-16 text-green-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-brand-primary)' }}>
+                {activityData.title}
+              </h3>
+              <p className="text-gray-600 mb-6">Activity loaded successfully!</p>
+              
+              <div className="flex flex-col md:flex-row gap-4 justify-center">
+                <button
+                  onClick={startActivity}
+                  className="text-white px-8 py-3 rounded-full font-semibold transition-opacity"
+                  style={{ backgroundColor: 'var(--color-brand-primary)' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+                >
+                  Start Activity
+                </button>
+                
+                <button
+                  onClick={() => setShowPreview(true)}
+                  className="border-2 px-8 py-3 rounded-full font-semibold transition-all"
+                  style={{ 
+                    borderColor: 'var(--color-brand-primary)', 
+                    color: 'var(--color-brand-primary)' 
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--color-brand-primary)';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = 'var(--color-brand-primary)';
+                  }}
+                >
+                  Preview Model Prompt & Image
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!activityData && (
+          <div className="mt-8 text-center">
+            <p className="text-gray-600 text-sm">
+              Learn to write effective AI image generation prompts
+            </p>
+          </div>
+        )}
       </div>
+
+      {/* Preview Modal */}
+      {showPreview && activityData && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          onClick={() => setShowPreview(false)}
+        >
+          <div 
+            className="max-w-5xl w-full max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl p-8"
+            style={{ backgroundColor: 'var(--color-brand-card)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-start mb-6">
+              <h2 className="text-3xl font-bold" style={{ color: 'var(--color-brand-primary)' }}>
+                Model Prompt & Image Preview
+              </h2>
+              <button
+                onClick={() => setShowPreview(false)}
+                className="text-gray-500 hover:text-gray-700 text-3xl leading-none"
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* Model Prompt Section */}
+            <div className="mb-6 border-l-4 p-4 rounded" style={{ backgroundColor: 'var(--color-brand-section)', borderColor: 'var(--color-brand-primary)' }}>
+              <h3 className="font-semibold mb-3 text-xl" style={{ color: 'var(--color-brand-primary)' }}>
+                Model Prompt
+              </h3>
+              <p className="text-gray-700 mb-4 text-lg italic">
+                {activityData.model_prompt || 'No model prompt available'}
+              </p>
+              {activityData.model_prompt_explanation && (
+                <div className="mt-4 p-3 rounded" style={{ backgroundColor: 'var(--color-brand-input)' }}>
+                  <p className="text-gray-600 text-sm">
+                    <strong>Why this works:</strong> {activityData.model_prompt_explanation}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Generated Image Section */}
+            <div className="border-l-4 p-4 rounded" style={{ backgroundColor: 'var(--color-brand-input)', borderColor: 'var(--color-brand-primary)' }}>
+              <h3 className="font-semibold mb-4 text-xl" style={{ color: 'var(--color-brand-primary)' }}>
+                Pre-Generated Image
+              </h3>
+              {activityData.generated_image_base64 ? (
+                <div className="overflow-hidden rounded-lg">
+                  <img 
+                    src={`data:image/png;base64,${activityData.generated_image_base64}`} 
+                    alt="Pre-generated model result" 
+                    className="w-full h-auto block object-cover"
+                    style={{ maxWidth: '100%', height: 'auto', display: 'block' }}
+                  />
+                </div>
+              ) : (
+                <p className="text-gray-600">No pre-generated image available in this activity</p>
+              )}
+            </div>
+
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => {
+                  setShowPreview(false);
+                  startActivity();
+                }}
+                className="text-white px-8 py-3 rounded-full font-semibold transition-opacity"
+                style={{ backgroundColor: 'var(--color-brand-primary)' }}
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+              >
+                Start Activity
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
