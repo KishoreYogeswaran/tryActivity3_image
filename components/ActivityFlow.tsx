@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 interface ActivityData {
   title: string;
+  language?: string;
   activity_scenario: string;
   supervisor_directions: string;
   final_instruction: string;
@@ -94,7 +95,10 @@ export default function ActivityFlow({ activityData }: { activityData: ActivityD
         const response = await fetch('/api/generate-image', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: finalPrompt })
+          body: JSON.stringify({ 
+            prompt: finalPrompt,
+            language: activityData.language || "EN"
+          })
         });
 
         const result = await response.json();

@@ -5,16 +5,30 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
+// Language code to name mapping
+const LANGUAGE_NAMES: Record<string, string> = {
+  "ES": "Spanish",
+  "PT": "Portuguese",
+  "BH": "Bahasa",
+  "EN": "Hindi"
+};
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { learning_activity_content, user_prompt } = body;
+    
+    // Extract language from activity content, default to EN
+    const language = learning_activity_content.language || "EN";
+    const languageName = LANGUAGE_NAMES[language] || LANGUAGE_NAMES["EN"];
 
     console.log('📥 Evaluating prompt for activity');
+    console.log('🌍 Language:', `${language} (${languageName})`);
     console.log('📝 User prompt length:', user_prompt.length);
 
     // Extract only the necessary fields (exclude base64 image)
     const relevantContent = {
+      language: languageName,
       title: learning_activity_content.title,
       activity_scenario: learning_activity_content.activity_scenario,
       supervisor_directions: learning_activity_content.supervisor_directions,
@@ -24,7 +38,7 @@ export async function POST(request: Request) {
 
     console.log('📊 Relevant content prepared (without image)');
 
-    // Build the evaluation prompt
+    // Build the evaluation prompt - source of truth
     const evaluationPrompt = `Role: You are an expert in evaluating prompts. 
 
 Action: You are evaluating prompt written by an Indian student in high school, ITI, VTP, Polytechnic, or 2nd/3rd tier College who is attempting a 'learning activity' about using AI tools to generate images. You will evaluate the prompt written by the user on a scale of 1-5 based on the 'learning activity content, which includes rubrics, given in this prompt. 
@@ -35,31 +49,49 @@ learning_activity_content: ${JSON.stringify(relevantContent)}
 
 user_prompt: ${user_prompt}
 
-Expectations:
+feedback_language: Mentioned as "language:" in learning_activity_content 
 
-Generate the feedback with the following details:
-  1. Score (Out of 5) - based on the rules given below
-  2. A one-liner summary of feedback
-  3. A 5-pointer detailed feedback based on the rubrics. Each pointer should have three parts:
-      a. Heading: This should be the same text as the rubric heading.
-      b. Status: PASS or FAIL. Do not mention this in the feedback.
-      c. Feedback: One line feedback mentioning what user did well or what the user missed out on. Do not mention Pass or Fail status.
+Expectations:  
+
+Generate the feedback with the following details: 
+
+Score (Out of 5) - based on the rules given below 
+
+A one-liner summary of feedback 
+
+A 5-pointer detailed feedback based on the rubrics. Each pointer should have three parts:  
+
+Heading: This should be the same text as the rubric heading. 
+
+Status: PASS or FAIL. Do not mention this in the feedback. 
+
+Feedback: One line feedback mentioning what user did well or what the user missed out on. Do not mention Pass or Fail status. 
+
+ 
 
 Rules for scoring: 
-  - MUST DO: The user should be awarded at least 1 point for attempting the question, even when no rubrics are satisfied. In this case, the one-liner summary of feedback should state that none of the requirements are fulfilled, but 1 mark is awarded for attempting the activity.
-  - The user receives 1 point for each rubric they satisfy completely.
-  - MUST DO: The 5th rubric should fail without any exception if any extraneous or superfluous information is included in the user's prompt, which is not needed to generate the image as per the activity scenario or supervisor's instructions.
-  - MUST DO: If user describes the requirements given in the 2nd and 3rd rubrics, with the same details as supervisor's direction, then these rubrics should be considered as passed. It is important that the user should NOT be expected to provide any information or detail, above and beyond of what is present in the supervisor's direction. If the supervisor's directions include pronouns, then the user should be required to mention the character name, object name or job role instead of using the pronoun as is.
-  - The first rubric should be passed ONLY if the prompt includes [workplace_location] and [Setting 1 and 2]' as per the activity content and rubric.
 
-CRITICAL REQUIREMENTS - MUST FOLLOW: You must follow these guidelines while generating the activity content in Hindi language.
-  1. Use everyday conversational Hindi.
-  2. Prefer short, simple sentences.
-  3. MUST DO: If there are Transliterated terms in the activity or rubrics, use them as is in the feedback.
-  4. MUST DO: Every word of the activity must be either in the Hindi language or 'transliterated into Devanagari script'. There should be NO words in Roman or Latin script except numbers.
-  5. Do not use complex Sanskritized terms unless widely understood.
+- MUST DO: The user should be awarded at least 1 point for attempting the question, even when no rubrics are satisfied. In this case, the one-liner summary of feedback should state that none of the requirements are fulfilled, but 1 mark is awarded for attempting the activity. 
 
-BE STRICT IN YOUR EVALUATION. Do not give points for partially meeting criteria. Each element must be fully satisfied to pass.
+- The user receives 1 point for each rubric they satisfy completely. 
+
+- MUST DO: The 5th rubric should fail without any exception if any extraneous or superfluous information is included in the user's prompt, which is not needed to generate the image as per the activity scenario or supervisor's instructions. 
+
+- MUST DO: If user describes the requirements given in the 2nd and 3rd rubrics, with the same details as supervisor's direction, then these rubrics should be considered as passed. It is important that the user should NOT be expected to provide any information or detail, above and beyond of what is present in the supervisor's direction. If the supervisor's directions include pronouns, then the user should be required to mention the character name, object name or job role instead of using the pronoun as is. 
+- The first rubric should be passed ONLY if the prompt includes [workplace_location] and [Setting 1 and 2]' as per the activity content and rubric. 
+
+BE STRICT IN YOUR EVALUATION. Do not give points for partially meeting criteria. Each element must be fully satisfied to pass. 
+
+You must follow these guidelines while generating the feedback content in ${languageName} language. 
+
+Use everyday conversational ${languageName}. 
+
+Prefer short, simple sentences. 
+
+MUST DO: If there are Transliterated terms in the activity or rubrics, use them as is in the feedback. 
+
+MUST DO: Every word of the feedback must be in ${languageName} language. There should be NO words in other languages except numbers. 
+
 
 IMPORTANT: Respond ONLY with valid JSON in this exact format:
 {
