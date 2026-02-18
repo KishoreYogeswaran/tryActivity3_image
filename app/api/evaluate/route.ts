@@ -7,10 +7,10 @@ const groq = new Groq({
 
 // Language code to name mapping
 const LANGUAGE_NAMES: Record<string, string> = {
-  "ES": "Spanish",
-  "PT": "Portuguese",
-  "BH": "Bahasa",
-  "EN": "Hindi"
+  "es": "Spanish",
+  "pt": "Portuguese",
+  "id": "Bahasa",
+  "hi": "Hindi",
 };
 
 export async function POST(request: Request) {
@@ -19,8 +19,14 @@ export async function POST(request: Request) {
     const { learning_activity_content, user_prompt } = body;
     
     // Extract language from activity content, default to EN
-    const language = learning_activity_content.language || "EN";
-    const languageName = LANGUAGE_NAMES[language] || LANGUAGE_NAMES["EN"];
+    const language = learning_activity_content.language?.toLowerCase();
+    if (!language) {
+      return NextResponse.json({ error: 'Missing required field: language' }, { status: 400 });
+    }
+    const languageName = LANGUAGE_NAMES[language];
+    if (!languageName) {
+      return NextResponse.json({ error: `Unsupported language code: "${language}". Supported codes: es, pt, id, hi` }, { status: 400 });
+    }
 
     console.log('📥 Evaluating prompt for activity');
     console.log('🌍 Language:', `${language} (${languageName})`);
@@ -41,7 +47,7 @@ export async function POST(request: Request) {
     // Build the evaluation prompt - source of truth
     const evaluationPrompt = `Role: You are an expert in evaluating prompts. 
 
-Action: You are evaluating prompt written by an Indian student in high school, ITI, VTP, Polytechnic, or 2nd/3rd tier College who is attempting a 'learning activity' about using AI tools to generate images. You will evaluate the prompt written by the user on a scale of 1-5 based on the 'learning activity content, which includes rubrics, given in this prompt. 
+Action: You are evaluating prompt written by a student in high school, ITI, VTP, Polytechnic, or 2nd/3rd tier College who is attempting a 'learning activity' about using AI tools to generate images. You will evaluate the prompt written by the user on a scale of 1-5 based on the 'learning activity content, which includes rubrics, given in this prompt. 
 
 Context: 
 
@@ -49,7 +55,7 @@ learning_activity_content: ${JSON.stringify(relevantContent)}
 
 user_prompt: ${user_prompt}
 
-feedback_language: Mentioned as "language:" in learning_activity_content 
+feedback_language: ${languageName}
 
 Expectations:  
 
@@ -67,7 +73,6 @@ Status: PASS or FAIL. Do not mention this in the feedback.
 
 Feedback: One line feedback mentioning what user did well or what the user missed out on. Do not mention Pass or Fail status. 
 
- 
 
 Rules for scoring: 
 

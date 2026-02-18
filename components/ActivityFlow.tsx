@@ -97,7 +97,7 @@ export default function ActivityFlow({ activityData }: { activityData: ActivityD
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             prompt: finalPrompt,
-            language: activityData.language || "EN"
+            language: activityData.language || "hi"
           })
         });
 

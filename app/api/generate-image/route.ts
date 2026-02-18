@@ -8,31 +8,30 @@ interface CulturalContext {
 }
 
 const CONTEXT_MAP: Record<string, CulturalContext> = {
-  "ES": {
+  "es": {
     geography: "Mexican",
     region: "Mexico",
     description: "Mexican workplace environment with Latin American context"
   },
-  "PT": {
+  "pt": {
     geography: "Brazilian",
     region: "Brazil",
     description: "Brazilian workplace environment with South American context"
   },
-  "BH": {
+  "id": {
     geography: "Indonesian",
     region: "Indonesia",
     description: "Indonesian workplace environment with Southeast Asian context"
   },
-  "EN": {
+  "hi": {
     geography: "Indian",
     region: "India",
     description: "Indian workplace environment with South Asian context"
   }
 };
 
-function buildPromptWithGuardrails(prompt: string, language: string = "EN"): string {
-  // Default to Indian/English if language not found
-  const context = CONTEXT_MAP[language.toUpperCase()] || CONTEXT_MAP["EN"];
+function buildPromptWithGuardrails(prompt: string, language: string): string {
+  const context = CONTEXT_MAP[language.toLowerCase()];
   
   const guardrails = `
 CRITICAL REQUIREMENTS - MUST FOLLOW:
@@ -80,7 +79,13 @@ REMINDER: Generate a realistic, professional ${context.geography} workplace imag
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { prompt, language = "EN" } = body;
+    const { prompt, language } = body;
+    if (!language) {
+      return NextResponse.json({ error: 'Missing required field: language' }, { status: 400 });
+    }
+    if (!CONTEXT_MAP[language.toLowerCase()]) {
+      return NextResponse.json({ error: `Unsupported language code: "${language}". Supported codes: es, pt, id, hi` }, { status: 400 });
+    }
 
     console.log('🎨 Generating image with Gemini 3 Pro');
     console.log('🌍 Language/Context:', language);
