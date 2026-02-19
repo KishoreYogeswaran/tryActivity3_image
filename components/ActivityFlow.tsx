@@ -56,6 +56,15 @@ export default function ActivityFlow({ activityData }: { activityData: ActivityD
       });
 
       const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Evaluation failed');
+      }
+
+      if (!result.score || !result.detailed_feedback) {
+        throw new Error('Invalid response from evaluation service');
+      }
+
       setFeedback(result);
       setCurrentStep('feedback');
 
@@ -65,7 +74,7 @@ export default function ActivityFlow({ activityData }: { activityData: ActivityD
       }
     } catch (error) {
       console.error('Error evaluating prompt:', error);
-      alert('Error evaluating your prompt. Please try again.');
+      alert(`Error evaluating your prompt: ${error instanceof Error ? error.message : 'Please try again.'}`);
     } finally {
       setIsEvaluating(false);
     }

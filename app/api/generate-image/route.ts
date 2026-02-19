@@ -94,52 +94,62 @@ export async function POST(request: Request) {
     // Build prompt with culturally-adapted guardrails
     const fullPrompt = buildPromptWithGuardrails(prompt, language);
 
-    // Call Gemini API with 16:9 aspect ratio
-    const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: fullPrompt
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.4,
-            topK: 32,
-            topP: 1,
-            maxOutputTokens: 4096,
-            imageConfig: {
-              aspectRatio: "16:9"
-            }
-          }
-        })
+    // Retry logic - 3 attempts with exponential backoff
+    const MAX_RETRIES = 3;
+    const BASE_DELAY_MS = 5000;
+
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      if (attempt > 1) {
+        const delay = BASE_DELAY_MS * Math.pow(2, attempt - 2);
+        console.log(`⏳ Retry attempt ${attempt}/${MAX_RETRIES} after ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
       }
-    );
 
-    if (!geminiResponse.ok) {
-      throw new Error(`Gemini API error: ${geminiResponse.statusText}`);
-    }
+      console.log(`🚀 Calling Gemini API (attempt ${attempt}/${MAX_RETRIES})...`);
 
-    const result = await geminiResponse.json();
+      const geminiResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${process.env.GEMINI_API_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: fullPrompt }]
+            }],
+            generationConfig: {
+              temperature: 0.4,
+              topK: 32,
+              topP: 1,
+              maxOutputTokens: 4096,
+              imageConfig: { aspectRatio: "16:9" }
+            }
+          })
+        }
+      );
 
-    // Extract image from response
-    if (result.candidates && result.candidates[0]?.content?.parts) {
-      for (const part of result.candidates[0].content.parts) {
-        if (part.inlineData && part.inlineData.data) {
-          console.log('✅ Image generated successfully');
-          return NextResponse.json({
-            image_base64: part.inlineData.data
-          });
+      if (!geminiResponse.ok) {
+        console.warn(`⚠️ Attempt ${attempt}: Gemini API error: ${geminiResponse.statusText}`);
+        if (attempt === MAX_RETRIES) throw new Error(`Gemini API error after ${MAX_RETRIES} retries: ${geminiResponse.statusText}`);
+        continue;
+      }
+
+      const result = await geminiResponse.json();
+
+      // Extract image from response
+      if (result.candidates?.[0]?.content?.parts) {
+        for (const part of result.candidates[0].content.parts) {
+          if (part.inlineData?.data) {
+            console.log(`✅ Image generated successfully on attempt ${attempt}`);
+            return NextResponse.json({ image_base64: part.inlineData.data });
+          }
         }
       }
+
+      console.warn(`⚠️ Attempt ${attempt}: No image data in response`);
+      if (attempt === MAX_RETRIES) throw new Error(`No image data in response after ${MAX_RETRIES} retries`);
     }
 
-    throw new Error('No image data in response');
+    throw new Error('Image generation failed after all retries');
   } catch (error) {
     console.error('❌ Error generating image:', error);
     return NextResponse.json(
